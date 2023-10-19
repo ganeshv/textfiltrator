@@ -19,7 +19,7 @@
         android:id="@+id/urlEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter Spreadsheet URL"/>
+        android:hint="Enter Google Spreadsheet URL"/>
 
     <!-- Confirm URL button -->
     <Button
@@ -41,14 +41,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Start Forwarding"/>
+            android:text="Start"/>
 
         <Button
             android:id="@+id/stopButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Stop Forwarding"/>
+            android:text="Stop"/>
 
         <Button
             android:id="@+id/resetButton"
