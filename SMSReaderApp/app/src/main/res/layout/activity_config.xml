@@ -57,6 +57,24 @@
             android:layout_height="wrap_content"
             android:hint="Subject Line"
             android:inputType="text" />
+    
+        <!-- Button for sending a test email -->
+        <Button
+            android:id="@+id/btnSendTestMail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Send Test Mail"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Checkbox for confirming receipt of the test email -->
+        <CheckBox
+            android:id="@+id/checkBoxConfirmReceipt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="I confirm receipt of the test mail"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp" />
 
         <!-- Buttons Layout (Horizontal) -->
         <LinearLayout

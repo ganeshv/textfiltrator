@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
-import android.widget.Toast
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 
@@ -29,35 +28,36 @@ class SmsReceiver : BroadcastReceiver() {
                 // For simplicity, let's show a Toast with the SMS content
                 Log.d("SmsReceiver", messageBody)  // Log the SMS details
                 Log.d("SmsReceiver", it[0].displayOriginatingAddress)
-                Toast.makeText(context, messageBody, Toast.LENGTH_LONG).show()
                 LogManager.log("Received SMS from ${it[0].displayOriginatingAddress}", context)
                 // format a message string including the sender and the message body
                 val message = "SMS from ${it[0].displayOriginatingAddress}: $messageBody"
                 CoroutineScope(Dispatchers.Main).launch {
-                    if (context != null) {
-                        sendEmailSSL(
-                            context = context, // Pass the context
-                            content = message
-                        )
-                        LogManager.log("Emailed SMS from ${it[0].displayOriginatingAddress}", context)
+                    try {
+                        if (context != null) {
+                            val smtpSettings = SMTPSettings.load(context)
+                            sendEmailSSL(
+                                content = message,
+                                settings = smtpSettings
+                            )
+                            LogManager.log(
+                                "Emailed SMS from ${it[0].displayOriginatingAddress}",
+                                context
+                            )
+                        }
+                    } catch (e: Exception) {
+                        LogManager.log("Failed to email SMS: ${e.message}", context)
                     }
                 }
 
             }
         }
-
     }
 }
 
-suspend fun sendEmailSSL(context: Context, content: String) {
+suspend fun sendEmailSSL(content: String, settings: SMTPSettings) {
     withContext(Dispatchers.IO) {
         // Fetch credentials from EncryptedSharedPreferences
-        val host = EncryptedPreferencesUtil.getString(context, "SMTP_SERVER", "")
-        val port = EncryptedPreferencesUtil.getString(context, "PORT", "")
-        val user = EncryptedPreferencesUtil.getString(context, "SENDER_EMAIL", "")
-        val password = EncryptedPreferencesUtil.getString(context, "SENDER_PASSWORD", "")
-        val to = EncryptedPreferencesUtil.getString(context, "RECIPIENT_EMAILS", "")
-        val subject = EncryptedPreferencesUtil.getString(context, "SUBJECT_LINE", "")
+        val (host, port, user, password, to, subject) = settings
 
         val properties = System.getProperties()
         properties["mail.smtp.host"] = host
@@ -69,7 +69,8 @@ suspend fun sendEmailSSL(context: Context, content: String) {
         val session = Session.getDefaultInstance(properties)
         val message = MimeMessage(session)
         message.setFrom(InternetAddress(user))
-        message.addRecipients(javax.mail.Message.RecipientType.TO, InternetAddress.parse(to))
+        val recipientEmails = to.replace(" ", ", ") // Convert space-separated list to comma-separated
+        message.addRecipients(javax.mail.Message.RecipientType.TO, InternetAddress.parse(recipientEmails))
         message.subject = subject
         message.setText(content)
 
