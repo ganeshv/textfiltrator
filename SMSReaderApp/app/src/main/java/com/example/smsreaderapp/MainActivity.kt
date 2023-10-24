@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import android.widget.Button
@@ -111,8 +112,8 @@ class MainActivity : Activity() {
     private suspend fun updateLogList() {
         val dbHelper = LogManager.dbHelper
         val count = dbHelper.getNumberOfEntries()
-        if (count > eventCount) {
-            // New log entries found
+        if (count != eventCount) {
+            // New log entries found, or log purged
             eventCount = count
             val logs = dbHelper.getEntries(10) // Fetch only the new entries
             val logText = logs.joinToString("\n") { (timestamp, text) ->
@@ -223,8 +224,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     suspend fun truncateLog(entries: Int) = withContext(Dispatchers.IO) {
         val db = writableDatabase
 
-        // This method removes the oldest records keeping only the 900 latest records.
-        db.execSQL("DELETE FROM $TABLE_NAME WHERE $COLUMN_TIMESTAMP NOT IN (SELECT $COLUMN_TIMESTAMP FROM $TABLE_NAME ORDER BY $COLUMN_TIMESTAMP DESC LIMIT $entries")
+        // This method removes the oldest records keeping only `entries` latest records.
+        db.execSQL("DELETE FROM $TABLE_NAME WHERE $COLUMN_TIMESTAMP NOT IN (SELECT $COLUMN_TIMESTAMP FROM $TABLE_NAME ORDER BY $COLUMN_TIMESTAMP DESC LIMIT $entries)")
     }
 }
 
@@ -248,7 +249,7 @@ object LogManager {
             dbHelper.addEntry(currentTimestamp, text)
             val count = dbHelper.getNumberOfEntries()
             if (count > 1000) {
-                dbHelper.truncateLog(900)
+                dbHelper.truncateLog(750)
             }
         }
     }
