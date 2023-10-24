@@ -96,7 +96,7 @@ class ConfigActivity : Activity() {
             // Save to encrypted shared preferences
             saveSettings(smtpServer, portString, senderEmail, senderPassword, recipientEmails.joinToString(" "), subjectLine)
             configStatusTextView.text = "Configuration saved successfully!"
-
+            LogManager.log("Configuration saved successfully!")
             // Make all the fields uneditable until the Edit button is pressed
             disableEdit()
         }
@@ -105,6 +105,7 @@ class ConfigActivity : Activity() {
             // Wipe all preferences
             saveSettings("", "", "", "", "", "")
             loadSettings()
+            LogManager.log("Configuration reset successfully!")
         }
     }
 

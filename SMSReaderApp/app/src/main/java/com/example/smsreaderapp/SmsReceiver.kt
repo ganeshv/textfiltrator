@@ -19,6 +19,9 @@ import javax.mail.internet.MimeMessage
 class SmsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         Log.d("SmsReceiver", "Received SMS intent")
+        if (intent?.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) {
+            return
+        }
         val messages = Telephony.Sms.Intents.getMessagesFromIntent(intent)
         messages?.let {
             if (it.isNotEmpty()) {
@@ -27,6 +30,7 @@ class SmsReceiver : BroadcastReceiver() {
                 Log.d("SmsReceiver", messageBody)  // Log the SMS details
                 Log.d("SmsReceiver", it[0].displayOriginatingAddress)
                 Toast.makeText(context, messageBody, Toast.LENGTH_LONG).show()
+                LogManager.log("Received SMS from ${it[0].displayOriginatingAddress}", context)
                 // format a message string including the sender and the message body
                 val message = "SMS from ${it[0].displayOriginatingAddress}: $messageBody"
                 CoroutineScope(Dispatchers.Main).launch {
@@ -35,6 +39,7 @@ class SmsReceiver : BroadcastReceiver() {
                             context = context, // Pass the context
                             content = message
                         )
+                        LogManager.log("Emailed SMS from ${it[0].displayOriginatingAddress}", context)
                     }
                 }
 
@@ -55,11 +60,11 @@ suspend fun sendEmailSSL(context: Context, content: String) {
         val subject = EncryptedPreferencesUtil.getString(context, "SUBJECT_LINE", "")
 
         val properties = System.getProperties()
-        properties.put("mail.smtp.host", host)
-        properties.put("mail.smtp.socketFactory.port", port)
-        properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory")
-        properties.put("mail.smtp.auth", "true")
-        properties.put("mail.smtp.port", port)
+        properties["mail.smtp.host"] = host
+        properties["mail.smtp.socketFactory.port"] = port
+        properties["mail.smtp.socketFactory.class"] = "javax.net.ssl.SSLSocketFactory"
+        properties["mail.smtp.auth"] = "true"
+        properties["mail.smtp.port"] = port
 
         val session = Session.getDefaultInstance(properties)
         val message = MimeMessage(session)
