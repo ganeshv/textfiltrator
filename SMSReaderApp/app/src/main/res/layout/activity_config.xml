@@ -31,7 +31,7 @@
             android:id="@+id/senderEmailEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Sender Email"
+            android:hint="SMTP Username"
             android:inputType="textEmailAddress" />
 
         <!-- Sender Password -->
@@ -39,7 +39,7 @@
             android:id="@+id/senderPasswordEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Sender Password"
+            android:hint="SMTP Password"
             android:inputType="textPassword" />
 
         <!-- Recipient Email(s) - Assuming comma-separated for multiple emails -->
@@ -57,6 +57,14 @@
             android:layout_height="wrap_content"
             android:hint="Subject Line"
             android:inputType="text" />
+
+        <EditText
+            android:id="@+id/matchEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Match words (leave blank to fwd all SMS)"
+            android:inputType="text"
+            android:maxLines="1" />
 
         <!-- Button for sending a test email -->
         <Button

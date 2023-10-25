@@ -3,7 +3,6 @@ package com.example.smsreaderapp
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
@@ -54,8 +53,10 @@ class ConfigActivity : Activity() {
     private lateinit var saveButton: Button
     private lateinit var resetButton: Button
     private lateinit var configStatusTextView: TextView
+    private lateinit var matchEditText: EditText
     private lateinit var btnSendTestMail: Button
     private lateinit var checkBoxConfirmReceipt: CheckBox
+
 
     private var isEditing : Boolean = false
     private lateinit var smtpSettings : SMTPSettings
@@ -71,6 +72,7 @@ class ConfigActivity : Activity() {
         senderPasswordEditText = findViewById(R.id.senderPasswordEditText)
         recipientEmailsEditText = findViewById(R.id.recipientEmailsEditText)
         subjectLineEditText = findViewById(R.id.subjectLineEditText)
+        matchEditText = findViewById(R.id.matchEditText)
 
         editButton = findViewById(R.id.editButton)
         saveButton = findViewById(R.id.saveButton)
@@ -98,12 +100,13 @@ class ConfigActivity : Activity() {
         saveButton.setOnClickListener {
             val settings: SMTPSettings = validateSettings() ?: return@setOnClickListener
             val confirm = checkBoxConfirmReceipt.isChecked
+            val matchWords = matchEditText.text.toString().trim()
             if (!confirm) {
                 configStatusTextView.text = "Please send test mail and confirm receipt"
                 return@setOnClickListener
             }
             // Save to encrypted shared preferences
-            saveSettings(settings, true)
+            saveSettings(settings, true, matchWords)
             configStatusTextView.text = "Configuration saved successfully!"
             LogManager.log("Configuration saved successfully!")
             // Make all the fields uneditable until the Edit button is pressed
@@ -112,7 +115,8 @@ class ConfigActivity : Activity() {
 
         resetButton.setOnClickListener {
             // Wipe all preferences
-            saveSettings(SMTPSettings("", "", "", "", "", ""), false)
+            saveSettings(SMTPSettings("", "", "", "",
+                "", ""), false, "")
             EncryptedPreferencesUtil.putBoolean(this, "FORWARDING_STATE", false)
             loadSettings()
             LogManager.log("Configuration reset successfully!")
@@ -131,6 +135,7 @@ class ConfigActivity : Activity() {
         val senderPassword = senderPasswordEditText.text.toString().trim()
         val recipientEmails = recipientEmailsEditText.text.toString().trim().split(" ")
         val subjectLine = subjectLineEditText.text.toString().trim()
+        val matchWords = matchEditText.text.toString().trim()
         val errlist = mutableListOf<String>()
 
         // Validations
@@ -153,6 +158,13 @@ class ConfigActivity : Activity() {
         if (subjectLine.isBlank()) {
             errlist.add("Subject line cannot be empty!")
         }
+        if (!matchWords.isEmpty()) {
+            try {
+                generateRegexPattern(matchWords)
+            } catch (e: Exception) {
+                errlist.add("Invalid match words!")
+            }
+        }
         return if (errlist.isNotEmpty()) {
             configStatusTextView.text = errlist.joinToString("\n")
             null
@@ -165,6 +177,7 @@ class ConfigActivity : Activity() {
     private fun loadSettings() : SMTPSettings {
         val s = SMTPSettings.load(this)
         val confirmReceipt = EncryptedPreferencesUtil.getBoolean(this, "CONFIRMED_RECEIPT", false)
+        val matchWords = EncryptedPreferencesUtil.getString(this, "MATCH_WORDS") ?: ""
 
         // Populate the fields with the loaded settings
         smtpServerEditText.setText(s.smtpServer)
@@ -173,14 +186,16 @@ class ConfigActivity : Activity() {
         senderPasswordEditText.setText(s.senderPassword)
         recipientEmailsEditText.setText(s.recipientEmails)
         subjectLineEditText.setText(s.subjectLine)
+        matchEditText.setText(matchWords)
         checkBoxConfirmReceipt.isChecked = confirmReceipt
 
         return s
     }
 
-    private fun saveSettings(smtpSettings: SMTPSettings, confirmEmail: Boolean) {
+    private fun saveSettings(smtpSettings: SMTPSettings, confirmEmail: Boolean, matchWords: String) {
         smtpSettings.store(this)
         EncryptedPreferencesUtil.putBoolean(this, "CONFIRMED_RECEIPT", confirmEmail)
+        EncryptedPreferencesUtil.putString(this, "MATCH_WORDS", matchWords)
     }
 
     private fun disableEdit() {
@@ -192,6 +207,7 @@ class ConfigActivity : Activity() {
         subjectLineEditText.isEnabled = false
         btnSendTestMail.isEnabled = false
         checkBoxConfirmReceipt.isEnabled = false
+        matchEditText.isEnabled = false
 
         editButton.text = "Edit"
         isEditing = false
@@ -207,6 +223,7 @@ class ConfigActivity : Activity() {
         subjectLineEditText.isEnabled = true
         btnSendTestMail.isEnabled = true
         checkBoxConfirmReceipt.isEnabled = true
+        matchEditText.isEnabled = true
         editButton.text = "Cancel"
         isEditing = true
         saveButton.isEnabled = true
@@ -232,4 +249,10 @@ class ConfigActivity : Activity() {
             }
         }
     }
+}
+
+fun generateRegexPattern(input: String): Regex {
+    val words = input.split(" ")
+    val pattern = words.joinToString("|")
+    return "\\b($pattern)\\b".toRegex(RegexOption.IGNORE_CASE)
 }

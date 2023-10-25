@@ -38,6 +38,14 @@ class SmsReceiver : BroadcastReceiver() {
                             if (!fwdState) {
                                 return@launch
                             }
+                            val matchWords = EncryptedPreferencesUtil.getString(context, "MATCH_WORDS", "") ?: ""
+                            if (!matchWords.isBlank()) {
+                                val regex = generateRegexPattern(matchWords)
+                                if (!regex.containsMatchIn(message)) {
+                                    LogManager.log("SMS from ${it[0].displayOriginatingAddress} did not have match words", context)
+                                    return@launch
+                                }
+                            }
                             val smtpSettings = SMTPSettings.load(context)
                             sendEmailSSL(
                                 content = message,

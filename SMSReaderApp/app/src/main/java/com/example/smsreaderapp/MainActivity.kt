@@ -109,20 +109,25 @@ class MainActivity : Activity() {
 
     private fun updateFwdState(state: Boolean) {
         val smtpConfigStatus = EncryptedPreferencesUtil.getBoolean(this, "CONFIRMED_RECEIPT", false)
+        val currentFwdState = EncryptedPreferencesUtil.getBoolean(this, "FORWARDING_STATE", false)
 
         if (state && smtpConfigStatus) {
             startButton.isEnabled = false
             stopButton.isEnabled = true
             statusTextView.text = "Forwarding SMS: In progress"
-            LogManager.log("Started forwarding")
-            EncryptedPreferencesUtil.putBoolean(this, "FORWARDING_STATE", true)
+            if (!currentFwdState) {
+                LogManager.log("Started forwarding")
+                EncryptedPreferencesUtil.putBoolean(this, "FORWARDING_STATE", true)
+            }
         } else {
             startButton.isEnabled = smtpConfigStatus
             stopButton.isEnabled = false
             configureButton.isEnabled = true
             statusTextView.text = "Forwarding SMS: Stopped"
-            LogManager.log("Stopped forwarding")
-            EncryptedPreferencesUtil.putBoolean(this, "FORWARDING_STATE", false)
+            if (currentFwdState) {
+                LogManager.log("Stopped forwarding")
+                EncryptedPreferencesUtil.putBoolean(this, "FORWARDING_STATE", false)
+            }
         }
     }
 
