@@ -75,15 +75,11 @@ class MainActivity : Activity() {
         // Set up listeners
 
         startButton.setOnClickListener {
-            // Start forwarding logic here
-            LogManager.log("Started forwarding")
-            statusTextView.text = "Forwarding SMS: In progress"
+            updateFwdState(true)
         }
 
         stopButton.setOnClickListener {
-            // Stop forwarding logic here
-            LogManager.log("Stopped forwarding")
-            statusTextView.text = "Forwarding SMS: Stopped"
+            updateFwdState(false)
         }
         configureButton.setOnClickListener {
             // Start the configuration activity
@@ -95,6 +91,8 @@ class MainActivity : Activity() {
     override fun onResume() {
         super.onResume()
 
+        val forwardingState = EncryptedPreferencesUtil.getBoolean(this, "FORWARDING_STATE", false)
+        updateFwdState(forwardingState)
         pollingJob = CoroutineScope(Dispatchers.Main).launch {
             while (isActive) { // check if the coroutine is still active
                 updateLogList()
@@ -107,6 +105,25 @@ class MainActivity : Activity() {
         super.onPause()
         pollingJob?.cancel()
         pollingJob = null
+    }
+
+    private fun updateFwdState(state: Boolean) {
+        val smtpConfigStatus = EncryptedPreferencesUtil.getBoolean(this, "CONFIRMED_RECEIPT", false)
+
+        if (state && smtpConfigStatus) {
+            startButton.isEnabled = false
+            stopButton.isEnabled = true
+            statusTextView.text = "Forwarding SMS: In progress"
+            LogManager.log("Started forwarding")
+            EncryptedPreferencesUtil.putBoolean(this, "FORWARDING_STATE", true)
+        } else {
+            startButton.isEnabled = smtpConfigStatus
+            stopButton.isEnabled = false
+            configureButton.isEnabled = true
+            statusTextView.text = "Forwarding SMS: Stopped"
+            LogManager.log("Stopped forwarding")
+            EncryptedPreferencesUtil.putBoolean(this, "FORWARDING_STATE", false)
+        }
     }
 
     private suspend fun updateLogList() {

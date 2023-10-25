@@ -113,6 +113,7 @@ class ConfigActivity : Activity() {
         resetButton.setOnClickListener {
             // Wipe all preferences
             saveSettings(SMTPSettings("", "", "", "", "", ""), false)
+            EncryptedPreferencesUtil.putBoolean(this, "FORWARDING_STATE", false)
             loadSettings()
             LogManager.log("Configuration reset successfully!")
         }
@@ -163,7 +164,7 @@ class ConfigActivity : Activity() {
 
     private fun loadSettings() : SMTPSettings {
         val s = SMTPSettings.load(this)
-        val confirmReceipt = EncryptedPreferencesUtil.getBoolean(this, "CONFIRM_RECEIPT", false)
+        val confirmReceipt = EncryptedPreferencesUtil.getBoolean(this, "CONFIRMED_RECEIPT", false)
 
         // Populate the fields with the loaded settings
         smtpServerEditText.setText(s.smtpServer)
@@ -179,7 +180,7 @@ class ConfigActivity : Activity() {
 
     private fun saveSettings(smtpSettings: SMTPSettings, confirmEmail: Boolean) {
         smtpSettings.store(this)
-        EncryptedPreferencesUtil.putBoolean(this, "CONFIRM_RECEIPT", confirmEmail)
+        EncryptedPreferencesUtil.putBoolean(this, "CONFIRMED_RECEIPT", confirmEmail)
     }
 
     private fun disableEdit() {

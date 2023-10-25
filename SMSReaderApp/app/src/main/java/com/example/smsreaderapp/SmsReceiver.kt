@@ -34,6 +34,10 @@ class SmsReceiver : BroadcastReceiver() {
                 CoroutineScope(Dispatchers.Main).launch {
                     try {
                         if (context != null) {
+                            val fwdState = EncryptedPreferencesUtil.getBoolean(context, "FORWARDING_STATE", false)
+                            if (!fwdState) {
+                                return@launch
+                            }
                             val smtpSettings = SMTPSettings.load(context)
                             sendEmailSSL(
                                 content = message,
