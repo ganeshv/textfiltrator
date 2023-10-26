@@ -11,58 +11,86 @@
         android:padding="16dp">
 
         <!-- SMTP Server Address -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SMTP Server" />
+
         <EditText
             android:id="@+id/smtpServerEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="SMTP Server"
             android:inputType="text" />
 
         <!-- Port -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SMTP Port" />
+
         <EditText
             android:id="@+id/portEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Port"
             android:inputType="number" />
 
         <!-- Sender Email -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SMTP Username" />
+
         <EditText
             android:id="@+id/senderEmailEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="SMTP Username"
-            android:inputType="textEmailAddress" />
+            android:inputType="text" />
 
         <!-- Sender Password -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SMTP Password" />
+
         <EditText
             android:id="@+id/senderPasswordEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="SMTP Password"
             android:inputType="textPassword" />
 
         <!-- Recipient Email(s) - Assuming comma-separated for multiple emails -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recipient Email(s)" />
+
         <EditText
             android:id="@+id/recipientEmailsEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Recipient Email(s)"
             android:inputType="textEmailAddress" />
 
         <!-- Subject Line -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Subject Line" />
+
         <EditText
             android:id="@+id/subjectLineEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Subject Line"
             android:inputType="text" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Forward SMS matching these words (blank for all)" />
 
         <EditText
             android:id="@+id/matchEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Match words (leave blank to fwd all SMS)"
             android:inputType="text"
             android:maxLines="1" />
 

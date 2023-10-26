@@ -30,7 +30,7 @@ class SmsReceiver : BroadcastReceiver() {
                 Log.d("SmsReceiver", it[0].displayOriginatingAddress)
                 LogManager.log("Received SMS from ${it[0].displayOriginatingAddress}", context)
                 // format a message string including the sender and the message body
-                val message = "SMS from ${it[0].displayOriginatingAddress}: $messageBody"
+                val message = "SMS from: ${it[0].displayOriginatingAddress}\n$messageBody"
                 CoroutineScope(Dispatchers.Main).launch {
                     try {
                         if (context != null) {

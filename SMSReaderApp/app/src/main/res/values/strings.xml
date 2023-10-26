@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">SMSReaderApp</string>
+    <string name="app_name">TextFiltrator</string>
+    <string name="app_subtitle">Forward SMS to email</string>
+    <string name="app_description">Specify credentials for an SMTP server and a list of email
+        addresses. You can specify match keywords like <b>OTP</b> and <b>code</b>, so that only
+        those texts containing one of those words will be mailed.</string>
 </resources>
