@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/values/styles.xml -->
+<resources>
+
+    <style name="LogoStyle">
+        <!-- You can add specific dimensions or other stylings for the logo here -->
+    </style>
+
+    <style name="AppTitle">
+        <item name="android:textSize">24sp</item>
+        <!--<item name="android:textColor">@color/secondary</item>-->
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="AppSubTitle">
+        <item name="android:textSize">16sp</item>
+        <!--<item name="android:textColor">@color/secondary</item>-->
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="DescriptionPane">
+        <!--<item name="android:background">#504E66</item>
+        <item name="android:textColor">@color/secondary</item>-->
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <style name="LogTextStyle">
+        <!--<item name="android:textColor">@color/secondary</item>-->
+    </style>
+
+    <style name="ActionButtonStyle">
+        <!--<item name="android:background">@color/button_bg</item>
+        <item name="android:textColor">@color/secondary</item>-->
+        <item name="android:padding">8dp</item>
+    </style>
+</resources>
