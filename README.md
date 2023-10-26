@@ -2,7 +2,7 @@
 
 Texts exfiltrated, OTPs forwarded, Googles thwarted
 
-![App Logo](https://raw.github.com/ganeshv/textfiltrator/master/tf_logo.png | width=240)
+<img src="https://raw.githubusercontent.com/ganeshv/textfiltrator/master/tf_logo.png" width="200">
 
 ## Overview
 
