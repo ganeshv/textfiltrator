@@ -80,7 +80,25 @@ and the free plan has enough quota for this use case.
 Sorry, I'm not providing apks right now. You'll need to build from source, using
 Android Studio.
 
-TBD: Add steps to compile without Android Studio
+On MacOS, you can use the following steps to compile via command line without
+Android Studio, assuming you have Homebrew already. The steps keep changing over
+time, this works as of Oct 2023. First install the SDK:
+```
+brew install openjdk # prefer this to Oracle Java
+export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+brew install --cask android-commandlinetools
+export ANDROID_HOME=/opt/homebrew/share/android-commandlinetools
+sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+```
+Now clone this repo and compile:
+```
+git clone https://github.com/ganeshv/textfiltrator.git
+cd textfiltrator/TextFiltrator.app
+./gradlew assembleDebug
+ls -l app/build/outputs/apk/debug/app-debug.apk
+```
+`app-debug.apk` may be installed on your phone by downloading it from Google Drive or
+WhatsApp, after allowing apps from unknown sources.
 
 ## Permissions
 
