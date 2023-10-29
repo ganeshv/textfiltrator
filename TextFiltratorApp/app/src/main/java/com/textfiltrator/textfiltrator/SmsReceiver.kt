@@ -24,13 +24,14 @@ class SmsReceiver : BroadcastReceiver() {
         val messages = Telephony.Sms.Intents.getMessagesFromIntent(intent)
         messages?.let {
             if (it.isNotEmpty()) {
-                val messageBody = it[0].messageBody
-                // For simplicity, let's show a Toast with the SMS content
-                //Log.d("SmsReceiver", messageBody)  // Log the SMS details
-                //Log.d("SmsReceiver", it[0].displayOriginatingAddress)
-                LogManager.log("Received SMS from ${it[0].displayOriginatingAddress}", context)
+                val originatingAddress = it[0].displayOriginatingAddress
+                val messageBody = it.joinToString(separator = "") {message -> message.messageBody}
+                //Log.d("SmsReceiver: message from:", originatingAddress)
+                //Log.d("SmsReceiver: message body:", messageBody)
+
+                LogManager.log("Received SMS from $originatingAddress", context)
                 // format a message string including the sender and the message body
-                val message = "SMS from: ${it[0].displayOriginatingAddress}\n$messageBody"
+                val message = "SMS from: $originatingAddress\n$messageBody"
                 CoroutineScope(Dispatchers.Main).launch {
                     try {
                         if (context != null) {
@@ -41,8 +42,8 @@ class SmsReceiver : BroadcastReceiver() {
                             val matchWords = EncryptedPreferencesUtil.getString(context, "MATCH_WORDS", "") ?: ""
                             if (!matchWords.isBlank()) {
                                 val regex = generateRegexPattern(matchWords)
-                                if (!regex.containsMatchIn(message)) {
-                                    LogManager.log("SMS from ${it[0].displayOriginatingAddress} did not have match words", context)
+                                if (!regex.containsMatchIn(messageBody)) {
+                                    LogManager.log("SMS from $originatingAddress, keywords not found", context)
                                     return@launch
                                 }
                             }
@@ -52,7 +53,7 @@ class SmsReceiver : BroadcastReceiver() {
                                 settings = smtpSettings
                             )
                             LogManager.log(
-                                "Emailed SMS from ${it[0].displayOriginatingAddress}",
+                                "Emailed SMS from $originatingAddress",
                                 context
                             )
                         }
