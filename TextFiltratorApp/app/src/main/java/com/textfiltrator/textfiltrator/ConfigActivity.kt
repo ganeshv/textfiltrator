@@ -158,7 +158,7 @@ class ConfigActivity : Activity() {
         if (subjectLine.isBlank()) {
             errlist.add("Subject line cannot be empty!")
         }
-        if (!matchWords.isEmpty()) {
+        if (matchWords.isNotEmpty()) {
             try {
                 generateRegexPattern(matchWords)
             } catch (e: Exception) {

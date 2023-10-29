@@ -17,7 +17,6 @@ import javax.mail.internet.MimeMessage
 
 class SmsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.d("SmsReceiver", "Received SMS intent")
         if (intent?.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) {
             return
         }
@@ -29,7 +28,7 @@ class SmsReceiver : BroadcastReceiver() {
                 //Log.d("SmsReceiver: message from:", originatingAddress)
                 //Log.d("SmsReceiver: message body:", messageBody)
 
-                LogManager.log("Received SMS from $originatingAddress", context)
+                //LogManager.log("Received SMS from $originatingAddress", context)
                 // format a message string including the sender and the message body
                 val message = "SMS from: $originatingAddress\n$messageBody"
                 CoroutineScope(Dispatchers.Main).launch {
@@ -40,10 +39,10 @@ class SmsReceiver : BroadcastReceiver() {
                                 return@launch
                             }
                             val matchWords = EncryptedPreferencesUtil.getString(context, "MATCH_WORDS", "") ?: ""
-                            if (!matchWords.isBlank()) {
+                            if (matchWords.isNotBlank()) {
                                 val regex = generateRegexPattern(matchWords)
                                 if (!regex.containsMatchIn(messageBody)) {
-                                    LogManager.log("SMS from $originatingAddress, keywords not found", context)
+                                    LogManager.log("Received SMS from $originatingAddress, keywords not found", context)
                                     return@launch
                                 }
                             }

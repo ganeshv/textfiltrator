@@ -34,6 +34,7 @@ class MainActivity : Activity() {
 
     // Declare Views
     private lateinit var statusTextView: TextView
+    private lateinit var versionTextView: TextView
     private lateinit var startButton: Button
     private lateinit var stopButton: Button
     private lateinit var configureButton: Button
@@ -70,6 +71,9 @@ class MainActivity : Activity() {
         stopButton = findViewById(R.id.stopButton)
         configureButton = findViewById(R.id.configureButton)
         statusTextView = findViewById(R.id.statusTextView)
+        versionTextView = findViewById(R.id.versionTextView)
+        val version = BuildConfig.VERSION_NAME
+        versionTextView.text = "Version: $version"
 
         // Set up listeners
 
