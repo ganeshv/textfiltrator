@@ -235,12 +235,12 @@ class ConfigActivity : Activity() {
 
     private fun sendTestMail() {
         val settings: SMTPSettings = validateSettings() ?: return
-        val subject = "Textfiltrator test mail"
+        val subject = "Textfiltrator test mail (${settings.subjectLine})"
         val body = "This is a test mail sent from Textfiltrator. Please confirm receipt by checking the box in the app."
         val testSettings = SMTPSettings(settings.smtpServer, settings.port, settings.senderEmail, settings.senderPassword, settings.recipientEmails, subject)
         CoroutineScope(Dispatchers.Main).launch {
             try {
-                sendEmailSSL(body, testSettings)
+                sendEmailSSL(body, subject, testSettings)
                 LogManager.log("Test mail sent!")
                 configStatusTextView.text = "Test mail sent!"
             } catch (e: Exception) {

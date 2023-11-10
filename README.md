@@ -32,15 +32,23 @@ Use the **Configure** button to set up and edit config details.
     - **SMTP Username**: This is the username on the SMTP server. For most providers this looks
         like an email address.
     - **SMTP Password**: Password associated with the username. In case of Google, this is the
-    "App Password" (explained later).
+    _App Password_ (explained later).
 - **Recipient Emails:** Specify recipient email addresses, separated by spaces.
-- **Subject Line:** Set to something like "SMS from ABC's Pixel 7", useful to distinguish which phone sent the email.
+- **Subject Line:** Set to something like _SMS from ABC's Pixel 7_, useful to distinguish which phone sent the email.
+    Optional: The string _{sender}_ anywhere in the subject line will be expanded to the sender's number or short code.
 - **Keywords:** A list of words separated by spaces. If the SMS contains one or more
     of these words, it will be forwarded. Leave blank to forward all messages (default).
 - Hit the **Save** button, this will perform some elementary validation on the fields.
 - Hit the **Send test mail** button to verify SMTP settings. Once you **confirm receipt** by ticking
     the checkbox, hit **Save** again.
 - Go back to the main screen and use the **Fwd SMS** button to start automatic forwarding.
+
+If you use Gmail, consider the following usage pattern:
+- Set the recipient as _myusername+sms@gmail.com_
+- Filter mail sent to _myusername+sms@gmail.com_ to skip the inbox and add a label _SMS_
+- Set the subject line to _Pixel 7, SMS from: {sender}_
+
+This avoids clutter in the inbox, and the mails under the label _SMS_ are threaded by sender.
 
 ## Getting an SMTP provider
 
@@ -55,10 +63,10 @@ difficult to use SMTP. Here's what works as of Oct 2023:
 1. (Recommended) Create a new Gmail account, though you can use an existing account as well.
 2. Go to https://myaccount.google.com, **Security** section.
 3. **2-Step Verification**: You need to enable this, or the following steps won't work.
-4. **App passwords**: Go to the search bar at the top of the page which says "Search Google Account"
-(not the browser URL or search bar) and enter "app" to find the **App passwords** menu.
-It's not visible otherwise. Create an app password with a name like "SMTP". You will get a 
-popup with 16 characters, like "abcd efgh ijkl mnop". Your app password is "abcdefghijklmnop",
+4. **App passwords**: Go to the search bar at the top of the page which says _Search Google Account_
+(not the browser URL or search bar) and enter _app_ to find the **App passwords** menu.
+It's not visible otherwise. Create an app password with a name like _SMTP_. You will get a 
+popup with 16 characters, like "abcd efgh ijkl mnop". Your app password is _abcdefghijklmnop_,
 carefully note it before dismissing the popup.
 
 Now you can use the following SMTP settings:
@@ -68,7 +76,7 @@ Now you can use the following SMTP settings:
 - **SMTP Password**: abcdefghijklmnop
 
 Hit **Send Test Mail** to verify that it works. If you get something like
-"5.7.8 Username and Password not accepted." in the status, something didn't
+_5.7.8 Username and Password not accepted_ in the status, something didn't
 go right with the previous steps, or Google changed things yet again.
 
 Other SMTP providers include [Brevo](https://www.brevo.com/products/transactional-email/) and

@@ -47,8 +47,10 @@ class SmsReceiver : BroadcastReceiver() {
                                 }
                             }
                             val smtpSettings = SMTPSettings.load(context)
+                            val subject = smtpSettings.subjectLine.replace("{sender}", originatingAddress)
                             sendEmailSSL(
                                 content = message,
+                                subject = subject,
                                 settings = smtpSettings
                             )
                             LogManager.log(
@@ -66,10 +68,10 @@ class SmsReceiver : BroadcastReceiver() {
     }
 }
 
-suspend fun sendEmailSSL(content: String, settings: SMTPSettings) {
+suspend fun sendEmailSSL(content: String, subject: String, settings: SMTPSettings) {
     withContext(Dispatchers.IO) {
         // Fetch credentials from EncryptedSharedPreferences
-        val (host, port, user, password, to, subject) = settings
+        val (host, port, user, password, to) = settings
 
         val properties = System.getProperties()
         properties["mail.smtp.host"] = host
