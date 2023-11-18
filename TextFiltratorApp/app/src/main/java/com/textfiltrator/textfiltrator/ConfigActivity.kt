@@ -3,6 +3,7 @@ package com.textfiltrator.textfiltrator
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
@@ -17,7 +18,8 @@ data class SMTPSettings (
     val senderEmail: String,
     val senderPassword: String,
     val recipientEmails: String,
-    val subjectLine: String
+    val subjectLine: String,
+    val mailTemplate: String
 ) {
     companion object {
         fun load(context: Context) : SMTPSettings {
@@ -27,8 +29,10 @@ data class SMTPSettings (
             val senderPassword = EncryptedPreferencesUtil.getString(context, "SENDER_PASSWORD") ?: ""
             val recipientEmails = EncryptedPreferencesUtil.getString(context, "RECIPIENT_EMAILS") ?: ""
             val subjectLine = EncryptedPreferencesUtil.getString(context, "SUBJECT_LINE") ?: ""
-            return SMTPSettings(smtpServer, port, senderEmail, senderPassword, recipientEmails, subjectLine)
+            val mailTemplate = EncryptedPreferencesUtil.getString(context, "MAIL_TEMPLATE") ?: defaultMailTemplate
+            return SMTPSettings(smtpServer, port, senderEmail, senderPassword, recipientEmails, subjectLine, mailTemplate)
         }
+        const val defaultMailTemplate = "SMS from: {sender}\\n{message}"
     }
     fun store(context: Context) {
         EncryptedPreferencesUtil.putString(context, "SMTP_SERVER", smtpServer)
@@ -37,6 +41,7 @@ data class SMTPSettings (
         EncryptedPreferencesUtil.putString(context, "SENDER_PASSWORD", senderPassword)
         EncryptedPreferencesUtil.putString(context, "RECIPIENT_EMAILS", recipientEmails)
         EncryptedPreferencesUtil.putString(context, "SUBJECT_LINE", subjectLine)
+        EncryptedPreferencesUtil.putString(context, "MAIL_TEMPLATE", mailTemplate)
     }
 }
 
@@ -49,6 +54,7 @@ class ConfigActivity : Activity() {
     private lateinit var senderPasswordEditText: EditText
     private lateinit var recipientEmailsEditText: EditText
     private lateinit var subjectLineEditText: EditText
+    private lateinit var mailTemplateEditText: EditText
     private lateinit var editButton: Button
     private lateinit var saveButton: Button
     private lateinit var resetButton: Button
@@ -72,6 +78,7 @@ class ConfigActivity : Activity() {
         senderPasswordEditText = findViewById(R.id.senderPasswordEditText)
         recipientEmailsEditText = findViewById(R.id.recipientEmailsEditText)
         subjectLineEditText = findViewById(R.id.subjectLineEditText)
+        mailTemplateEditText = findViewById(R.id.mailTemplateEditText)
         matchEditText = findViewById(R.id.matchEditText)
 
         editButton = findViewById(R.id.editButton)
@@ -116,7 +123,7 @@ class ConfigActivity : Activity() {
         resetButton.setOnClickListener {
             // Wipe all preferences
             saveSettings(SMTPSettings("", "", "", "",
-                "", ""), false, "")
+                "", "", SMTPSettings.defaultMailTemplate), false, "")
             EncryptedPreferencesUtil.putBoolean(this, "FORWARDING_STATE", false)
             loadSettings()
             LogManager.log("Configuration reset successfully!")
@@ -135,6 +142,8 @@ class ConfigActivity : Activity() {
         val senderPassword = senderPasswordEditText.text.toString().trim()
         val recipientEmails = recipientEmailsEditText.text.toString().trim().split(" ")
         val subjectLine = subjectLineEditText.text.toString().trim()
+        val mailTemplate = mailTemplateEditText.text.toString().trim()
+
         val matchWords = matchEditText.text.toString().trim()
         val errlist = mutableListOf<String>()
 
@@ -158,6 +167,9 @@ class ConfigActivity : Activity() {
         if (subjectLine.isBlank()) {
             errlist.add("Subject line cannot be empty!")
         }
+        if (mailTemplate.isBlank()) {
+            errlist.add("Mail template cannot be empty!")
+        }
         if (matchWords.isNotEmpty()) {
             try {
                 generateRegexPattern(matchWords)
@@ -165,12 +177,14 @@ class ConfigActivity : Activity() {
                 errlist.add("Invalid match words!")
             }
         }
+        Log.d("ConfigActivity", mailTemplate)
         return if (errlist.isNotEmpty()) {
             configStatusTextView.text = errlist.joinToString("\n")
             null
         } else {
             configStatusTextView.text = ""
-            SMTPSettings(smtpServer, portString, senderEmail, senderPassword, recipientEmails.joinToString(" "), subjectLine)
+            SMTPSettings(smtpServer, portString, senderEmail, senderPassword,
+                recipientEmails.joinToString(" "), subjectLine, mailTemplate)
         }
     }
 
@@ -186,6 +200,7 @@ class ConfigActivity : Activity() {
         senderPasswordEditText.setText(s.senderPassword)
         recipientEmailsEditText.setText(s.recipientEmails)
         subjectLineEditText.setText(s.subjectLine)
+        mailTemplateEditText.setText(s.mailTemplate)
         matchEditText.setText(matchWords)
         checkBoxConfirmReceipt.isChecked = confirmReceipt
 
@@ -205,6 +220,7 @@ class ConfigActivity : Activity() {
         senderPasswordEditText.isEnabled = false
         recipientEmailsEditText.isEnabled = false
         subjectLineEditText.isEnabled = false
+        mailTemplateEditText.isEnabled = false
         btnSendTestMail.isEnabled = false
         checkBoxConfirmReceipt.isEnabled = false
         matchEditText.isEnabled = false
@@ -221,6 +237,7 @@ class ConfigActivity : Activity() {
         senderPasswordEditText.isEnabled = true
         recipientEmailsEditText.isEnabled = true
         subjectLineEditText.isEnabled = true
+        mailTemplateEditText.isEnabled = true
         btnSendTestMail.isEnabled = true
         checkBoxConfirmReceipt.isEnabled = true
         matchEditText.isEnabled = true
@@ -237,7 +254,8 @@ class ConfigActivity : Activity() {
         val settings: SMTPSettings = validateSettings() ?: return
         val subject = "Textfiltrator test mail (${settings.subjectLine})"
         val body = "This is a test mail sent from Textfiltrator. Please confirm receipt by checking the box in the app."
-        val testSettings = SMTPSettings(settings.smtpServer, settings.port, settings.senderEmail, settings.senderPassword, settings.recipientEmails, subject)
+        val testSettings = SMTPSettings(settings.smtpServer, settings.port, settings.senderEmail,
+            settings.senderPassword, settings.recipientEmails, subject, body)
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 sendEmailSSL(body, subject, testSettings)

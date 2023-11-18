@@ -85,6 +85,18 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Mail Template" />
+
+        <EditText
+            android:id="@+id/mailTemplateEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Forward SMS matching these words (blank for all)" />
 
         <EditText

@@ -34,8 +34,9 @@ Use the **Configure** button to set up and edit config details.
     - **SMTP Password**: Password associated with the username. In case of Google, this is the
     _App Password_ (explained later).
 - **Recipient Emails:** Specify recipient email addresses, separated by spaces.
-- **Subject Line:** Set to something like _SMS from ABC's Pixel 7_, useful to distinguish which phone sent the email.
-    Optional: The string _{sender}_ anywhere in the subject line will be expanded to the sender's number or short code.
+- **Subject Line:** Set to something like _SMS from ABC's Pixel 7_, useful to distinguish which phone sent the email. See
+    [Template Variables](#template-variables) below to customise further.
+- **Mail Template:** Leave alone, or see [Template Variables](#template-variables) to customise.
 - **Keywords:** A list of words separated by spaces. If the SMS contains one or more
     of these words, it will be forwarded. Leave blank to forward all messages (default).
 - Hit the **Save** button, this will perform some elementary validation on the fields.
@@ -49,6 +50,18 @@ If you use Gmail, consider the following usage pattern:
 - Set the subject line to _Pixel 7, SMS from: {sender}_
 
 This avoids clutter in the inbox, and the mails under the label _SMS_ are threaded by sender.
+
+### Template Variables
+
+In the _Subject Line_ and _Mail Template_, you can use the following template variables surrounded by
+braces, like _{sender}_, which will expand as follows:
+
+- **sender**: will expand to the sender of the SMS, usually the phone number or shortcode.
+- **message**: will expand to the message body of the SMS.
+
+Typical useful combinations:
+- Subject line _Pixel 7, SMS from: {sender}_ and a mail template of _{message}_
+- Subject line _SMS from Pixel 7_ and a mail template of _SMS from: {sender}\n{message}_
 
 ## Getting an SMTP provider
 

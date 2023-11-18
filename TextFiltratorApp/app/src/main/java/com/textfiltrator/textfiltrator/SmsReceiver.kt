@@ -30,7 +30,6 @@ class SmsReceiver : BroadcastReceiver() {
 
                 //LogManager.log("Received SMS from $originatingAddress", context)
                 // format a message string including the sender and the message body
-                val message = "SMS from: $originatingAddress\n$messageBody"
                 CoroutineScope(Dispatchers.Main).launch {
                     try {
                         if (context != null) {
@@ -47,7 +46,8 @@ class SmsReceiver : BroadcastReceiver() {
                                 }
                             }
                             val smtpSettings = SMTPSettings.load(context)
-                            val subject = smtpSettings.subjectLine.replace("{sender}", originatingAddress)
+                            val subject = fillTemplate(smtpSettings.subjectLine, originatingAddress, messageBody, " ")
+                            val message = fillTemplate(smtpSettings.mailTemplate, originatingAddress, messageBody, "\n")
                             sendEmailSSL(
                                 content = message,
                                 subject = subject,
@@ -66,6 +66,12 @@ class SmsReceiver : BroadcastReceiver() {
             }
         }
     }
+}
+
+private fun fillTemplate(template: String, sender: String, message: String, newline: String): String {
+    return template.replace("\\n", newline)
+        .replace("{sender}", sender)
+        .replace("{message}", message)
 }
 
 suspend fun sendEmailSSL(content: String, subject: String, settings: SMTPSettings) {
